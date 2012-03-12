@@ -34,9 +34,9 @@ class Fixed : boost::operators<Fixed<T,N>> {
  public:
   Fixed() : data_(0) { };
   Fixed(const Fixed& rhs) : data_(rhs.data_) { };
-  Fixed(T x) : data_(x) { };
-  Fixed(double x) : data_(DoubleToT::convert(x * multiplier_)) { };
-  Fixed(float x) : data_(FloatToT::convert(x * multiplier_)) { };
+  explicit Fixed(T x) : data_(x) { };
+  explicit Fixed(double x) : data_(DoubleToT::convert(x * multiplier_)) { };
+  explicit Fixed(float x) : data_(FloatToT::convert(x * multiplier_)) { };
   Fixed& operator=(const Fixed& rhs) {
     data_ = rhs.data_;
     return *this;
