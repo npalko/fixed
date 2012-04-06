@@ -14,8 +14,8 @@
 
 
 namespace fixed {
-namespace {
 
+namespace {
 // cheap compile-time way to get integer powers of 10
 template <unsigned exponent>
 struct pow10 {
@@ -25,29 +25,23 @@ template <>
 struct pow10<0> {
   enum { value = 1 };
 };
-
-} 
-  
+}  
 
 template <typename T, unsigned N>
 class Fixed : boost::operators<Fixed<T,N>> {
  public:
   Fixed() : data_(0) { };
-  Fixed(const Fixed& rhs) : data_(rhs.data_) { };
   explicit Fixed(T x) : data_(x) { };
-  explicit Fixed(double x) : data_(DoubleToT::convert(x * multiplier_)) { };
-  explicit Fixed(float x) : data_(FloatToT::convert(x * multiplier_)) { };
-  Fixed& operator=(const Fixed& rhs) {
-    data_ = rhs.data_;
-    return *this;
-  };
-  ~Fixed() { };
+  explicit Fixed(double x)
+    : data_(boost::numeric::converter<double,T>::convert(x * mult_)) { };
+  explicit Fixed(float x)
+    : data_(boost::numeric::converter<float,T>::convert(x * mult_)) { };
  public: // conversions
   explicit operator double() const {
-    return static_cast<double>(data_) / multiplier_;
+    return static_cast<double>(data_) / mult_;
   };
   explicit operator float() const {
-    return static_cast<float>(data_) / multiplier_;
+    return static_cast<float>(data_) / mult_;
   };
  public: // boost::operators
   bool operator<(const Fixed& rhs) const {
@@ -65,42 +59,24 @@ class Fixed : boost::operators<Fixed<T,N>> {
     return *this;
   };
   Fixed& operator*=(const Fixed& rhs) {
-    data_ *= rhs.data_;
+    data_ = (data_ * rhs.data_) / mult_;
     return *this;
   };
   Fixed& operator/=(const Fixed& rhs) {
-    data_ /= rhs.data_;
-    return *this;  
-  };
-  Fixed& operator%=(const Fixed& rhs) {
-    data_ %= rhs.data_;
-    return *this;
-  };
-  Fixed& operator|=(const Fixed& rhs) {
-    data_ |= rhs.data_;
-    return *this;
-  };
-  Fixed& operator&=(const Fixed& rhs) {
-    data_ &= rhs.data_;
-    return *this;
-  };
-  Fixed& operator^=(const Fixed& rhs) {
-    data_ ^= rhs.data_;
+    data_ = (data_ * mult_) / rhs.data_;
     return *this;  
   };
   Fixed& operator++() {
-    data_ += multiplier_;
+    data_ += mult_;
     return *this;
   };
   Fixed& operator--() {
-    data_ -= multiplier_;
+    data_ -= mult_;
     return *this;
   };
  private:
   // TODO: make sure we convert to nearest int - Float2IntRounter::
-  typedef boost::numeric::converter<double,T> DoubleToT;
-  typedef boost::numeric::converter<float,T> FloatToT;
-  static const int multiplier_ = pow10<N>::value;
+  static const int mult_ = pow10<N>::value;
   T data_;
 };
 
@@ -111,10 +87,10 @@ std::ostream& operator<<(std::ostream& os, const Fixed<T,N>& f) {
 };
 
 
-typedef Fixed<boost::int32_t,2> Fixed2Int32;
-typedef Fixed<boost::int32_t,4> Fixed4Int32;
-typedef Fixed<boost::int32_t,6> Fixed6Int32;
-typedef Fixed<boost::int32_t,8> Fixed8Int32;
+typedef Fixed<boost::int32_t,2> int32p2_t;
+typedef Fixed<boost::int32_t,4> int32p4_t;
+typedef Fixed<boost::int32_t,6> int32p6_t;
+typedef Fixed<boost::int32_t,8> int32p8_t;
 }
 
 #endif
