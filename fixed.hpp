@@ -25,7 +25,14 @@ template <>
 struct pow10<0> {
   enum { value = 1 };
 };
-}  
+}
+
+
+/** Fixed point POD class. 
+ */
+
+
+//static const int fixed::mult_; 
 
 template <typename T, unsigned N>
 class Fixed : boost::operators<Fixed<T,N>> {
@@ -36,14 +43,14 @@ class Fixed : boost::operators<Fixed<T,N>> {
     : data_(boost::numeric::converter<double,T>::convert(x * mult_)) { };
   explicit Fixed(float x)
     : data_(boost::numeric::converter<float,T>::convert(x * mult_)) { };
- public: // conversions
+ public:
   explicit operator double() const {
     return static_cast<double>(data_) / mult_;
   };
   explicit operator float() const {
     return static_cast<float>(data_) / mult_;
   };
- public: // boost::operators
+ public: // functions required by boost::operators
   bool operator<(const Fixed& rhs) const {
     return data_ < rhs.data_;
   };
@@ -80,8 +87,17 @@ class Fixed : boost::operators<Fixed<T,N>> {
   T data_;
 };
 
+
+// define operators w/ integers
+
+
+
+
+
 template <typename T, unsigned N>
 std::ostream& operator<<(std::ostream& os, const Fixed<T,N>& f) {
+  //std::ios_base::flags flags
+
   os << std::setprecision(N) << std::fixed << static_cast<double>(f);
   return os;
 };
